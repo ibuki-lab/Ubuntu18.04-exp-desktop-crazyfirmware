@@ -81,15 +81,13 @@ static void bigquadInit(DeckInfo *info)
 
   DEBUG_PRINT("Switching to brushless.\n");
   motorsInit(motorMapBigQuadDeck);
-  // extRxInit();
+  extRxInit();
 #ifdef BQ_DECK_ENABLE_PM
-  DEBUG_PRINT("BQ_DECK_ENABLE_PM.\n");
   pmEnableExtBatteryVoltMeasuring(BIGQUAD_BAT_VOLT_PIN, BIGQUAD_BAT_VOLT_MULT);
   pmEnableExtBatteryCurrMeasuring(BIGQUAD_BAT_CURR_PIN, BIGQUAD_BAT_AMP_PER_VOLT);
 #endif
 
 #ifdef BQ_DECK_ENABLE_OSD
-  DEBUG_PRINT("BQ_DECK_ENABLE_OSD.\n");
   uart1Init(115200);
   mspInit(&s_MspObject, osdResponseCallback);
   xTaskCreate(osdTask, BQ_OSD_TASK_NAME,
@@ -103,10 +101,9 @@ static bool bigquadTest()
 {
   bool status = true;
 
-  if(!isInit){
-    DEBUG_PRINT("Test big quad.\n");
+  if(!isInit)
     return false;
-  }
+
   status = motorsTest();
 
   return status;
