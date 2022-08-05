@@ -38,8 +38,8 @@
 #include "deck_test.h"
 #include "param.h"
 
-#define VBAT_TEST_VOLTAGE_LOW      (3.0 / ((1.0 + 69.0 + 10.0) / 10.0) * 0.95) /* 0.35625 */
-#define VBAT_TEST_VOLTAGE_HIGH     (3.0 / ((1.0 + 69.0 + 10.0) / 10.0) * 1.05) /* 0.39375 */
+#define VBAT_TEST_VOLTAGE_LOW      (float)(3.0 / ((1.0 + 69.0 + 10.0) / 10.0) * 0.95) /* 0.35625 */
+#define VBAT_TEST_VOLTAGE_HIGH     (float)(3.0 / ((1.0 + 69.0 + 10.0) / 10.0) * 1.05) /* 0.39375 */
 
 #define TEST(result, str, status) decktestEval(result, DEBUG_MODULE ": " str, status)
 

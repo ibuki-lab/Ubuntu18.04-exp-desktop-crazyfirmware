@@ -117,10 +117,10 @@ void powerDistribution(const control_t *control)
       motorPower.m2 = idleThrust;
     }
     if (motorPower.m3 < idleThrust) {
-      motorPower.m3 = idleThrust;
+      motorPower.m3 = idleThrust;//idleThrust;
     }
     if (motorPower.m4 < idleThrust) {
-      motorPower.m4 = idleThrust;
+      motorPower.m4 = idleThrust;//idleThrust;
     }
 
     motorsSetRatio(MOTOR_M1, motorPower.m1);

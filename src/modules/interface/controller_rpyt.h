@@ -21,7 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * controller_TLee.h - T Lee Controller Interface
+ * controller_mellinger.h - Mellinger Controller Interface
  */
 #ifndef __CONTROLLER_RPYT_H__
 #define __CONTROLLER_RPYT_H__
@@ -35,4 +35,4 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
                                          const state_t *state,
                                          const uint32_t tick);
 
-#endif //__CONTROLLER_rpyt_H__
+#endif //__CONTROLLER_RPYT_H__

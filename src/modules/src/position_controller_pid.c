@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *ControllerTypeAny
+ *
  * position_estimator_pid.c: PID-based implementation of the position controller
  */
 

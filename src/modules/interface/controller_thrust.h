@@ -21,18 +21,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * controller_TLee.h - T Lee Controller Interface
+ * controller_mellinger.h - Mellinger Controller Interface
  */
-#ifndef __CONTROLLER_TLEE_H__
-#define __CONTROLLER_TLEE_H__
+#ifndef __CONTROLLER_THRUST_H__
+#define __CONTROLLER_THRUST_H__
 
 #include "stabilizer_types.h"
 
-void controllerTLeeInit(void);
-bool controllerTLeeTest(void);
-void controllerTLee(control_t *control, setpoint_t *setpoint,
+void controllerthrustInit(void);
+bool controllerthrustTest(void);
+void controllerthrust(control_t *control, setpoint_t *setpoint,
                                          const sensorData_t *sensors,
                                          const state_t *state,
                                          const uint32_t tick);
 
-#endif //__CONTROLLER_TLee_H__
+#endif //__CONTROLLER_THRUST_H__
