@@ -8,6 +8,7 @@
 #include "controller_indi.h"
 #include "controller_rpyt.h"
 #include "controller_thrust.h"
+#include "controller_attitude_Clover.h"
 
 #define DEFAULT_CONTROLLER ControllerTypePID
 static ControllerType currentController = ControllerTypeAny;
@@ -28,6 +29,7 @@ static ControllerFcns controllerFunctions[] = {
   {.init = controllerINDIInit, .test = controllerINDITest, .update = controllerINDI, .name = "INDI"},
   {.init = controllerrpytInit, .test = controllerrpytTest, .update = controllerrpyt, .name = "RPYT"},
   {.init = controllerthrustInit, .test = controllerthrustTest, .update = controllerthrust, .name = "THRUST"},
+  {.init = controllerattitudeCloverInit, .test = controllerattitudeCloverTest, .update = controllerattitudeClover, .name = "Clover"},
 };
 
 
