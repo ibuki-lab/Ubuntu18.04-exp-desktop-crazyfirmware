@@ -33,6 +33,7 @@ uint16_t single2half(float number);
 float half2single(uint16_t number);
 
 uint16_t limitUint16(int32_t value);
+uint16_t limit25000(int32_t value);
 float constrain(float value, const float minVal, const float maxVal);
 float deadband(float value, const float threshold);
 

@@ -100,6 +100,21 @@ uint16_t limitUint16(int32_t value)
   return (uint16_t)value;
 }
 
+// new saturation function
+uint16_t limit25000(int32_t value)
+{
+  if(value > 25000)
+  {
+    value = 25000;
+  }
+  else if(value < 0)
+  {
+    value = 0;
+  }
+
+  return (uint16_t)value;
+}
+
 float constrain(float value, const float minVal, const float maxVal)
 {
   return fminf(maxVal, fmaxf(minVal,value));
