@@ -36,6 +36,7 @@ typedef enum {
   ControllerTypeINDI,
   ControllerTypeThrust,
   ControllerTypeClover,
+  // ControllerTypepidClover,
   ControllerType_COUNT,
 } ControllerType;
 
