@@ -248,7 +248,7 @@ endif
 PROJ_OBJ += exptest.o
 PROJ_OBJ += exptestRR.o
 PROJ_OBJ += exptestBolt.o
-#PROJ_OBJ += bigquadtest.o
+PROJ_OBJ += bigquadtest.o
 #PROJ_OBJ += uarttest.o
 #PROJ_OBJ += aidecktest.o
 
