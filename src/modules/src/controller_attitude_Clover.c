@@ -1,17 +1,3 @@
-/*
-Editor: kato
-Attitude controller of Big Crazyflie-Clover
-
-main dependencies
-  attitude_controller
-  position_controller
-
-function
-  controllerattitudeCloverInit
-  controllerattitudeCloverTest
-  controllerattitudeClover
-
-*/
 #include "stabilizer.h"
 #include "stabilizer_types.h"
 
@@ -30,7 +16,7 @@ function
 // attitude_t: define in atabilizer_type
 static attitude_t attitudeDesired;
 static attitude_t rateDesired;
-static float actuatorThrust;
+static float actuatorThrust=0;
 
 static float cmd_thrust;
 static float cmd_roll;
@@ -88,9 +74,7 @@ void controllerattitudeClover(control_t *control, setpoint_t *setpoint,
 
   if (RATE_DO_EXECUTE(ATTITUDE_RATE, tick)) {
     // Switch between manual and automatic position control
-    if (setpoint->mode.z == modeDisable) {
-      actuatorThrust = setpoint->thrust; // manual controll, jou stick
-    }
+    actuatorThrust = setpoint->acceleration.z; // manual controll, jou stick
 
     // set desired attitude value
       attitudeDesired.roll = setpoint->attitude.roll;
@@ -107,7 +91,7 @@ void controllerattitudeClover(control_t *control, setpoint_t *setpoint,
                                         &control->pitch,
                                         &control->yaw);
     // control->yaw = -control->yaw;
-    control->yaw = 0;
+    control->yaw = control->yaw;
     cmd_thrust = control->thrust;
     cmd_roll = control->roll;
     cmd_pitch = control->pitch;
@@ -118,9 +102,9 @@ void controllerattitudeClover(control_t *control, setpoint_t *setpoint,
     accelz = sensors->gyro.z;
   }
 
-  control->thrust = actuatorThrust;
+  control->thrust = actuatorThrust*1000 + 19000;
 
-  if (control->thrust == 0)
+  if (actuatorThrust == 0)
   {
     control->thrust = 0;
     control->roll = 0;
@@ -140,7 +124,7 @@ void controllerattitudeClover(control_t *control, setpoint_t *setpoint,
   }
 }
 
-LOG_GROUP_START(controller)
+LOG_GROUP_START(ctrlClover)
 LOG_ADD(LOG_FLOAT, cmd_thrust, &cmd_thrust)
 LOG_ADD(LOG_FLOAT, cmd_roll, &cmd_roll)
 LOG_ADD(LOG_FLOAT, cmd_pitch, &cmd_pitch)
@@ -156,8 +140,8 @@ LOG_ADD(LOG_FLOAT, yaw,       &attitudeDesired.yaw)
 LOG_ADD(LOG_FLOAT, rollRate,  &rateDesired.roll)
 LOG_ADD(LOG_FLOAT, pitchRate, &rateDesired.pitch)
 LOG_ADD(LOG_FLOAT, yawRate,   &rateDesired.yaw)
-LOG_GROUP_STOP(controller)
+LOG_GROUP_STOP(ctrlClover)
 
-PARAM_GROUP_START(controller)
+PARAM_GROUP_START(ctrlClover)
 // PARAM_ADD(PARAM_UINT8, tiltComp, &tiltCompensationEnabled)
-PARAM_GROUP_STOP(controller)
+PARAM_GROUP_STOP(ctrlClover)
