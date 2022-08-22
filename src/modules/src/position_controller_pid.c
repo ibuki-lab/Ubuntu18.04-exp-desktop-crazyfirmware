@@ -80,8 +80,8 @@ static const float thrustScale = 1000.0f;
 static struct this_s this = {
   .pidVX = {
     .init = {
-      .kp = 25.0f,
-      .ki = 1.0f,
+      .kp = 5.0f,
+      .ki = 0.0f,
       .kd = 0.0f,
     },
     .pid.dt = DT,
@@ -89,8 +89,8 @@ static struct this_s this = {
 
   .pidVY = {
     .init = {
-      .kp = 25.0f,
-      .ki = 1.0f,
+      .kp = 5.0f,
+      .ki = 0.0f,
       .kd = 0.0f,
     },
     .pid.dt = DT,
@@ -98,8 +98,8 @@ static struct this_s this = {
 
   .pidVZ = {
     .init = {
-      .kp = 25,
-      .ki = 15,
+      .kp = 25.0,
+      .ki = 10,
       .kd = 0,
     },
     .pid.dt = DT,
@@ -107,7 +107,7 @@ static struct this_s this = {
 
   .pidX = {
     .init = {
-      .kp = 2.0f,
+      .kp = 1.0f,
       .ki = 0,
       .kd = 0,
     },
@@ -116,7 +116,7 @@ static struct this_s this = {
 
   .pidY = {
     .init = {
-      .kp = 2.0f,
+      .kp = 1.0f,
       .ki = 0,
       .kd = 0,
     },
@@ -125,15 +125,15 @@ static struct this_s this = {
 
   .pidZ = {
     .init = {
-      .kp = 2.0f,
-      .ki = 0.5,
+      .kp = 1.0f,
+      .ki = 0.0,
       .kd = 0,
     },
     .pid.dt = DT,
   },
 
-  .thrustBase = 36000,
-  .thrustMin  = 20000,
+  .thrustBase = 19000,
+  .thrustMin  = 0,
 };
 #endif
 
@@ -199,7 +199,7 @@ void velocityController(float* thrust, attitude_t *attitude, setpoint_t *setpoin
   this.pidVX.pid.outputLimit = rpLimit * rpLimitOverhead;
   this.pidVY.pid.outputLimit = rpLimit * rpLimitOverhead;
   // Set the output limit to the maximum thrust range
-  this.pidVZ.pid.outputLimit = (UINT16_MAX / 2 / thrustScale);
+  this.pidVZ.pid.outputLimit = (35000 / 2 / thrustScale);
   //this.pidVZ.pid.outputLimit = (this.thrustBase - this.thrustMin) / thrustScale;
 
   // Roll and Pitch
@@ -216,6 +216,7 @@ void velocityController(float* thrust, attitude_t *attitude, setpoint_t *setpoin
   // Thrust
   float thrustRaw = runPid(state->velocity.z, &this.pidVZ, setpoint->velocity.z, DT);
   // Scale the thrust and add feed forward term
+  // *thrust = thrustRaw*thrustScale + this.thrustBase;
   *thrust = thrustRaw*thrustScale + this.thrustBase;
   // Check for minimum thrust
   if (*thrust < this.thrustMin) {
