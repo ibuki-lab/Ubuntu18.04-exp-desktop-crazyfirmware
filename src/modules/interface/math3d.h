@@ -526,7 +526,72 @@ static inline struct mat33 mrotz(float angle) {
 
 // Matrix TODO: inv, solve, eig, 9 floats ctor, axis-aligned rotations
 
+// ---------------------------- 4d vectors ------------------------------
 
+struct vec4 {
+	float x; float y; float z; float w; 
+};
+
+//
+// constructors
+//
+
+// construct a vector from 3 floats.
+static inline struct vec4 mkvec4(float x, float y, float z, float w) {
+	struct vec4 v;
+	v.x = x; v.y = y; v.z = z; v.z = z; v.w = w;
+	return v;
+}
+
+
+// ---------------------------- 4x4 matrics ------------------------------
+struct mat44 {
+	float m[4][4];
+};
+
+static inline struct mat44 mzero44(void) {
+	struct mat44 m;
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			m.m[i][j] = 0;
+		}
+	}
+	return m;
+}
+
+static inline struct mat44 Ctrl_m(float mass) {
+	struct mat44 m = mzero44();
+	// thrust
+	m.m[0][0] = mass *1000.0f/(4.0f*9.8f);
+	m.m[1][0] = mass *1000.0f/(4.0f*9.8f);
+	m.m[2][0] = mass *1000.0f/(4.0f*9.8f);
+	m.m[3][0] = mass *1000.0f/(4.0f*9.8f);
+	// roll
+	m.m[0][1] = 1;
+	m.m[1][1] = 1;
+	m.m[2][1] = -1;
+	m.m[3][1] = -1;
+	// pitch
+	m.m[0][2] = -1;
+	m.m[1][2] = 1;
+	m.m[2][2] = 1;
+	m.m[3][2] = -1;
+	// yaw
+	m.m[0][3] = -1;
+	m.m[1][3] = 1;
+	m.m[2][3] = -1;
+	m.m[3][3] = 1;
+	return m;
+}
+
+// multiply a matrix by a vector.
+static inline struct vec4 mvmul4(struct mat44 a, struct vec4 v) {
+	float x = a.m[0][0] * v.x + a.m[0][1] * v.y + a.m[0][2] * v.z + a.m[0][3] * v.w;
+	float y = a.m[1][0] * v.x + a.m[1][1] * v.y + a.m[1][2] * v.z + a.m[1][3] * v.w;
+	float z = a.m[2][0] * v.x + a.m[2][1] * v.y + a.m[2][2] * v.z + a.m[2][3] * v.w;
+	float w = a.m[3][0] * v.x + a.m[3][1] * v.y + a.m[3][2] * v.z + a.m[3][3] * v.w;
+	return mkvec4(x, y, z, w);
+}
 // ---------------------------- quaternions ------------------------------
 
 struct quat {
