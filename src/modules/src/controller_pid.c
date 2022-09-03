@@ -110,7 +110,7 @@ void controllerPid(control_t *control, setpoint_t *setpoint,
     attitudeControllerGetActuatorOutput(&control->roll,
                                         &control->pitch,
                                         &control->yaw);
-    
+
     // control->yaw = -control->yaw;
     control->yaw = control->yaw;
     cmd_thrust = control->thrust;
