@@ -160,10 +160,16 @@ typedef struct state_s {
 } state_t;
 
 typedef struct control_s {
+  bool flag;
   int16_t roll;
   int16_t pitch;
   int16_t yaw;
   float thrust;
+  float m1;
+  float m2;
+  float m3;
+  float m4;
+
 } control_t;
 
 typedef enum mode_e {
