@@ -84,12 +84,20 @@ void powerStop()
 void powerDistribution(const control_t *control)
 {
   #ifdef QUAD_FORMATION_X
+  if (control->flag){
+    motorPower.m1 = limitThrust(control->m1);
+    motorPower.m2 = limitThrust(control->m2);
+    motorPower.m3 = limitThrust(control->m3);
+    motorPower.m4 = limitThrust(control->m4);
+  }
+  else{
     int16_t r = control->roll / 2.0f;
     int16_t p = control->pitch / 2.0f;
     motorPower.m1 = limitThrust(control->thrust - r + p + control->yaw);
     motorPower.m2 = limitThrust(control->thrust - r - p - control->yaw);
     motorPower.m3 = limitThrust(control->thrust + r - p + control->yaw);
     motorPower.m4 = limitThrust(control->thrust + r + p - control->yaw);
+  }
   #else // QUAD_FORMATION_NORMAL
     motorPower.m1 = limitThrust(control->thrust + control->pitch +
                                control->yaw);

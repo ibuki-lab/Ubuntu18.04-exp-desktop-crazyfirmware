@@ -43,6 +43,28 @@ IEEE International Conference on Robotics and Automation (ICRA), 2011.
 #include "physicalConstants.h"
 #include "pid.h"
 
+#define ATTITUDE_UPDATE_DT    (float)(1.0f/ATTITUDE_RATE)
+#define ATTITUDE_LPF_CUTOFF_FREQ      15.0f
+#define ATTITUDE_LPF_ENABLE false
+#define ATTITUDE_RATE_LPF_CUTOFF_FREQ 30.0f
+#define ATTITUDE_RATE_LPF_ENABLE false
+
+#define PID_Wx_KP  0.0 //250.0
+#define PID_Wx_KI  0.0  //500.0
+#define PID_Wx_KD  0.0  //2.5
+#define PID_Wx_INTEGRATION_LIMIT    33.3
+
+#define PID_Wy_KP  0.0 //250.0
+#define PID_Wy_KI  0.0  //500.0
+#define PID_Wy_KD  0.0  //2.5
+#define PID_Wy_INTEGRATION_LIMIT   33.3
+
+#define PID_Wz_KP  0.0 //120.0
+#define PID_Wz_KI  0.0  //16.7
+#define PID_Wz_KD  0.0  //0.0
+#define PID_Wz_INTEGRATION_LIMIT     166.7
+
+
 static float g_vehicleMass = 0.5; //0.027
 
 // Logging variables
@@ -51,49 +73,53 @@ static float cmd_roll;
 static float cmd_pitch;
 static float cmd_yaw;
 
-static float desiredRollrate;
-static float stateRollrate;
+static float desiredWx;
+static float stateWx;
+static int16_t WxOutput;
 
-static float desiredPitchrate;
-static float statePitchrate;
+static float desiredWy;
+static float stateWy;
+static int16_t WyOutput;
 
-static float desiredYawrate;
-static float stateYawrate;
-
-static float Rollrate_error;
-static float Rollrate_error_pre;
-static float Rollrate_i_error;
-static float Rollrate_d_error;
-
-static float Pitchrate_error;
-static float Pitchrate_error_pre;
-static float Pitchrate_i_error;
-static float Pitchrate_d_error;
-
-static float Yawrate_error;
-static float Yawrate_error_pre;
-static float Yawrate_i_error;
-static float Yawrate_d_error;
+static float desiredWz;
+static float stateWz;
+static int16_t WzOutput;
 
 static float dt;
 
+static inline int16_t saturateSignedInt16(float in)
+{
+  // don't use INT16_MIN, because later we may negate it, which won't work for that value.
+  if (in > INT16_MAX)
+    return INT16_MAX;
+  else if (in < -INT16_MAX)
+    return -INT16_MAX;
+  else
+    return (int16_t)in;
+}
+
 void controllerrpytReset(void)
 {
-  Rollrate_error_pre = 0;
-  Pitchrate_error_pre = 0;
-  Yawrate_error_pre = 0;
 
-  Rollrate_i_error = 0;
-  Pitchrate_i_error = 0;
-  Yawrate_i_error = 0;
-
-  Rollrate_d_error = 0;
-  Pitchrate_d_error = 0;
-  Yawrate_d_error = 0;
 }
+
+PidObject pidWx;
+PidObject pidWy;
+PidObject pidWz;
 
 void controllerrpytInit(void)
 {
+
+  pidInit(&pidWx,  0, PID_Wx_KP,  PID_Wx_KI,  PID_Wx_KD,
+      ATTITUDE_UPDATE_DT, ATTITUDE_RATE, ATTITUDE_RATE_LPF_CUTOFF_FREQ, ATTITUDE_RATE_LPF_ENABLE);
+  pidInit(&pidWy, 0, PID_Wy_KP, PID_Wy_KI, PID_Wy_KD,
+      ATTITUDE_UPDATE_DT, ATTITUDE_RATE, ATTITUDE_RATE_LPF_CUTOFF_FREQ, ATTITUDE_RATE_LPF_ENABLE);
+  pidInit(&pidWz,   0, PID_Wz_KP,   PID_Wz_KI,   PID_Wz_KD,
+      ATTITUDE_UPDATE_DT, ATTITUDE_RATE, ATTITUDE_RATE_LPF_CUTOFF_FREQ, ATTITUDE_RATE_LPF_ENABLE);
+
+  pidSetIntegralLimit(&pidWx, PID_Wx_INTEGRATION_LIMIT);
+  pidSetIntegralLimit(&pidWy, PID_Wy_INTEGRATION_LIMIT);
+  pidSetIntegralLimit(&pidWz, PID_Wz_INTEGRATION_LIMIT);
   controllerrpytReset();
 }
 
@@ -121,44 +147,36 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
   }
 // --- calculate Rollrate Pitchrate error (P, I, D) ---
 
-  desiredRollrate = radians(setpoint->attitudeRate.roll);
-  desiredPitchrate = -radians(setpoint->attitudeRate.pitch);
-  desiredYawrate = radians(setpoint->attitudeRate.yaw);
+  desiredWx = radians(setpoint->attitudeRate.roll);
+  desiredWy = radians(setpoint->attitudeRate.pitch);
+  desiredWz = radians(setpoint->attitudeRate.yaw);
 
-  stateRollrate = radians(sensors->gyro.x);
-  statePitchrate = -radians(sensors->gyro.y);
-  stateYawrate = radians(sensors->gyro.z);
+  stateWx = radians(sensors->gyro.x);
+  stateWy = -radians(sensors->gyro.y);
+  stateWz = radians(sensors->gyro.z);
   
-  // P
-  Rollrate_error = stateRollrate - desiredRollrate;
-  Pitchrate_error = statePitchrate - desiredPitchrate;
-  Yawrate_error = stateYawrate - desiredYawrate;
-  
-  // I
-  Rollrate_i_error += Rollrate_error * dt;
-  Pitchrate_i_error += Pitchrate_i_error * dt;
-  Yawrate_i_error += Yawrate_i_error * dt;
+  pidSetDesired(&pidWx, desiredWx);
+  WxOutput = saturateSignedInt16(pidUpdate(&pidWx, stateWx, true));
 
-  // D
-  Rollrate_d_error = (Rollrate_error - Rollrate_error_pre) / dt;
-  Pitchrate_d_error = (Pitchrate_error - Pitchrate_error_pre)/dt;
-  Yawrate_d_error = (Yawrate_error - Yawrate_error_pre)/dt;
-  Rollrate_error_pre = Rollrate_error;
-  Pitchrate_error_pre = Pitchrate_error;
-  Yawrate_error_pre = Yawrate_error;
+  pidSetDesired(&pidWy, desiredWy);
+  WyOutput = saturateSignedInt16(pidUpdate(&pidWy, stateWy, true));
+
+  pidSetDesired(&pidWz, desiredWz);
+  WzOutput = saturateSignedInt16(pidUpdate(&pidWz, stateWz, true));
 
 // --- thrust roll pitch yaw input vector [gram] ---
 
   // target_thrust.z = - 25.0f * thrustScale * Vel_error.z - 0.0f * z_error_i + 36000.0f;
   trpy_g.x = setpoint->acceleration.z;
-  trpy_g.y = -2.0f * Rollrate_error  - 5.0f * Rollrate_i_error - 0.0f * Rollrate_d_error;
-  trpy_g.z = -2.0f * Pitchrate_error - 5.0f * Pitchrate_i_error - 0.0f * Pitchrate_d_error;
-  trpy_g.w = -2.0f * Yawrate_error  - 5.0f * Yawrate_i_error - 0.0f * Yawrate_d_error;
+  trpy_g.y = WxOutput;
+  trpy_g.z = WyOutput;
+  trpy_g.w = WzOutput;
 
 // --- change trpy[gram] to Moter[gram]
   Moter_g = mvmul4(CT_rpyt2g, trpy_g);
 
 // --- change gram to pwm
+  
   if (Moter_g.x >= 0) {Moter_p.x = sqrt((double)Moter_g.x*8.309953163553529e-7+8.77420076969215e-6)*2.406752433662037e+6-4.951128620134714e+3;}
   else {Moter_p.x = -(sqrt((double)-Moter_g.x*8.309953163553529e-7+8.77420076969215e-6)*2.406752433662037e+6-4.951128620134714e+3);}
   
@@ -173,7 +191,7 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
 
   //calcurate input thrust and moment
   target_thrust.z = Moter_p.x + Moter_p.y + Moter_p.z + Moter_p.w;
-  M_p.x = Moter_p.x + Moter_p.y - Moter_p.z - Moter_p.w;
+  M_p.x = -Moter_p.x - Moter_p.y + Moter_p.z + Moter_p.w;
   M_p.y = -Moter_p.x + Moter_p.y + Moter_p.z - Moter_p.w;
   M_p.z = -Moter_p.x + Moter_p.y - Moter_p.z + Moter_p.w;
 
@@ -182,10 +200,17 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
     // control->thrust = massThrust * target_thrust.z;
     control->thrust = target_thrust.z; 
   } else{
+
+    control->flag = false;
     control->thrust = (float)0.0;
     M_p.z = (float)0.0;
     M_p.x = (float)0.0;
     M_p.y = (float)0.0;
+
+    control->m1 = (float)0.0;
+    control->m2 = (float)0.0;
+    control->m3 = (float)0.0;
+    control->m4 = (float)0.0;
   }
 
   // M.x = - (float)10000 * eRM.m[2][1];
@@ -195,6 +220,12 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
   control->roll = clamp(M_p.x, -32000, 32000);
   control->pitch = clamp(M_p.y, -32000, 32000);
   control->yaw = clamp(M_p.z, -32000, 32000);
+
+  control->flag = true;
+  control->m1 = Moter_p.x;
+  control->m2 = Moter_p.y;
+  control->m3 = Moter_p.z;
+  control->m4 = Moter_p.w;
 
   cmd_roll = control->roll;
   cmd_pitch = control->pitch;
