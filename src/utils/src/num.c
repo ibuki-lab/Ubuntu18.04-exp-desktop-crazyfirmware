@@ -101,11 +101,11 @@ uint16_t limitUint16(int32_t value)
 }
 
 // new saturation function
-uint16_t limit25000(int32_t value)
+uint16_t limit35000(int32_t value)
 {
-  if(value > 25000)
+  if(value > 35000)
   {
-    value = 25000;
+    value = 35000;
   }
   else if(value < 0)
   {
