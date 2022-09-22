@@ -328,8 +328,8 @@ static void fullStateDecoder(setpoint_t *setpoint, uint8_t type, const void *dat
   UNPACK(z)
   #undef UNPACK
 
-  // float const millirad2deg = 180.0f / ((float)M_PI * 1000.0f);
-  float const millirad2deg =  1.0f;
+  float const millirad2deg = 180.0f / ((float)M_PI * 1000.0f);
+  // float const millirad2deg =  1.0f;
   setpoint->attitudeRate.roll = millirad2deg * values->rateRoll;
   setpoint->attitudeRate.pitch = millirad2deg * values->ratePitch;
   setpoint->attitudeRate.yaw = millirad2deg * values->rateYaw;

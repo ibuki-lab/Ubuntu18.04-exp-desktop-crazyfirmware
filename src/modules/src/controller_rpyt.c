@@ -49,18 +49,18 @@ IEEE International Conference on Robotics and Automation (ICRA), 2011.
 #define ATTITUDE_RATE_LPF_CUTOFF_FREQ 30.0f
 #define ATTITUDE_RATE_LPF_ENABLE false
 
-#define PID_Wx_KP  0.0 //250.0
-#define PID_Wx_KI  0.0  //500.0
+#define PID_Wx_KP  5.0 //250.0
+#define PID_Wx_KI  3.0  //500.0
 #define PID_Wx_KD  0.0  //2.5
 #define PID_Wx_INTEGRATION_LIMIT    33.3
 
-#define PID_Wy_KP  0.0 //250.0
-#define PID_Wy_KI  0.0  //500.0
+#define PID_Wy_KP  5.0 //250.0
+#define PID_Wy_KI  3.0  //500.0
 #define PID_Wy_KD  0.0  //2.5
 #define PID_Wy_INTEGRATION_LIMIT   33.3
 
-#define PID_Wz_KP  0.0 //120.0
-#define PID_Wz_KI  0.0  //16.7
+#define PID_Wz_KP  1.0 //120.0
+#define PID_Wz_KI  0.5  //16.7
 #define PID_Wz_KD  0.0  //0.0
 #define PID_Wz_INTEGRATION_LIMIT     166.7
 
@@ -75,17 +75,21 @@ static float cmd_yaw;
 
 static float desiredWx;
 static float stateWx;
-static int16_t WxOutput;
+static float WxOutput;
 
 static float desiredWy;
 static float stateWy;
-static int16_t WyOutput;
+static float WyOutput;
 
 static float desiredWz;
 static float stateWz;
-static int16_t WzOutput;
+static float WzOutput;
 
 static float dt;
+
+PidObject pidWx;
+PidObject pidWy;
+PidObject pidWz;
 
 static inline int16_t saturateSignedInt16(float in)
 {
@@ -100,12 +104,10 @@ static inline int16_t saturateSignedInt16(float in)
 
 void controllerrpytReset(void)
 {
-
+  pidReset(&pidWx);
+  pidReset(&pidWy);
+  pidReset(&pidWz);
 }
-
-PidObject pidWx;
-PidObject pidWy;
-PidObject pidWz;
 
 void controllerrpytInit(void)
 {
@@ -140,9 +142,9 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
   struct vec4 Moter_p;                // moter [gram]
   struct mat44 CT_rpyt2g=Ctrl_m(g_vehicleMass);
   // float dt;
-  dt = (float)(1.0f/POSITION_RATE);
+  dt = (float)(1.0f/ATTITUDE_RATE);
   // kato: RATE_DO_EXECUTE is in stabilizer_types.h and ATTITUDE_RATE is 500 Hz
-  if (!RATE_DO_EXECUTE(POSITION_RATE, tick)) {
+  if (!RATE_DO_EXECUTE(ATTITUDE_RATE, tick)) {
     return;
   }
 // --- calculate Rollrate Pitchrate error (P, I, D) ---
@@ -156,18 +158,21 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
   stateWz = radians(sensors->gyro.z);
   
   pidSetDesired(&pidWx, desiredWx);
-  WxOutput = saturateSignedInt16(pidUpdate(&pidWx, stateWx, true));
+  // WxOutput = saturateSignedInt16(pidUpdate(&pidWx, stateWx, true));
+  WxOutput = pidUpdate(&pidWx, stateWx, true);
 
   pidSetDesired(&pidWy, desiredWy);
-  WyOutput = saturateSignedInt16(pidUpdate(&pidWy, stateWy, true));
+  // WyOutput = saturateSignedInt16(pidUpdate(&pidWy, stateWy, true));
+  WyOutput = pidUpdate(&pidWy, stateWy, true);
 
   pidSetDesired(&pidWz, desiredWz);
-  WzOutput = saturateSignedInt16(pidUpdate(&pidWz, stateWz, true));
+  // WzOutput = saturateSignedInt16(pidUpdate(&pidWz, stateWz, true));
+  WzOutput = pidUpdate(&pidWz, stateWz, true);
 
 // --- thrust roll pitch yaw input vector [gram] ---
 
   // target_thrust.z = - 25.0f * thrustScale * Vel_error.z - 0.0f * z_error_i + 36000.0f;
-  trpy_g.x = setpoint->acceleration.z;
+  trpy_g.x = setpoint->acceleration.z * (float)100.0;
   trpy_g.y = WxOutput;
   trpy_g.z = WyOutput;
   trpy_g.w = WzOutput;
@@ -175,30 +180,55 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
 // --- change trpy[gram] to Moter[gram]
   Moter_g = mvmul4(CT_rpyt2g, trpy_g);
 
+  // Moter_p.x = Moter_g.x + 10000.0;
+  // Moter_p.y = Moter_g.y + 10000;
+  // Moter_p.z = Moter_g.z + 10000;
+  // Moter_p.w = Moter_g.w + 10000;
+
+
 // --- change gram to pwm
   
-  if (Moter_g.x >= 0) {Moter_p.x = sqrt((double)Moter_g.x*8.309953163553529e-7+8.77420076969215e-6)*2.406752433662037e+6-4.951128620134714e+3;}
-  else {Moter_p.x = -(sqrt((double)-Moter_g.x*8.309953163553529e-7+8.77420076969215e-6)*2.406752433662037e+6-4.951128620134714e+3);}
+  if (Moter_g.x >= 0) {Moter_p.x = sqrtf((float)Moter_g.x*8.309953163553529e-7F+4.231999208818486e-6F)*2.406752433662037e+6F-4.951128620134714e+3F;}
+  else {Moter_p.x = -(sqrtf((float)-Moter_g.x*8.309953163553529e-7F+4.231999208818486e-6F)*2.406752433662037e+6F-4.951128620134714e+3F);}
   
-  if (Moter_g.y >= 0) {Moter_p.y = sqrt((double)Moter_g.y*8.763965396891775e-7+1.033956593757182e-5)*2.282071995297151e+6-5.020028004430765e+3;}
-  else {Moter_p.y = -(sqrt((double)-Moter_g.y*8.763965396891775e-7+1.033956593757182e-5)*2.282071995297151e+6-5.020028004430765e+3);}
+  if (Moter_g.y >= 0) {Moter_p.y = sqrtf((float)Moter_g.y*8.763965396891775e-7F+4.838977432913171e-6F)*2.282071995297151e+6F-5.020028004430765e+3F;}
+  else {Moter_p.y = -(sqrtf((float)-Moter_g.y*8.763965396891775e-7F+4.838977432913171e-6F)*2.282071995297151e+6F-5.020028004430765e+3F);}
 
-  if (Moter_g.z >= 0) {Moter_p.z = sqrt((double)Moter_g.z*8.464410710967024e-7+1.206468234853723e-5)*2.362834305061159e+6-5.75446231128539e+3;}
-  else{Moter_p.z = -(sqrt((double)-Moter_g.z*8.464410710967024e-7+1.206468234853723e-5)*2.362834305061159e+6-5.75446231128539e+3);}
+  if (Moter_g.z >= 0) {Moter_p.z = sqrtf((float)Moter_g.z*8.464410710967024e-7F+5.931205410463058e-6F)*2.362834305061159e+6F-5.75446231128539e+3F;}
+  else{Moter_p.z = -(sqrtf((float)-Moter_g.z*8.464410710967024e-7F+5.931205410463058e-6F)*2.362834305061159e+6F-5.75446231128539e+3F);}
   
-  if (Moter_g.w >= 0) {Moter_p.w = sqrt((double)Moter_g.w*8.464410710967024e-7+1.206468234853723e-5)*2.362834305061159e+6-5.75446231128539e+3;}
-  else{Moter_p.w = -(sqrt((double)-Moter_g.w*8.464410710967024e-7+1.206468234853723e-5)*2.362834305061159e+6-5.75446231128539e+3);}
+  if (Moter_g.w >= 0) {Moter_p.w = sqrtf((float)Moter_g.w*8.083914057959226e-7F+5.805476588712849e-6F)*2.474049062942287e+6F-5.961111523577613e+3F;}
+  else{Moter_p.w = -(sqrtf((float)-Moter_g.w*8.083914057959226e-7F+5.805476588712849e-6F)*2.474049062942287e+6F-5.961111523577613e+3F);}
 
   //calcurate input thrust and moment
-  target_thrust.z = Moter_p.x + Moter_p.y + Moter_p.z + Moter_p.w;
-  M_p.x = -Moter_p.x - Moter_p.y + Moter_p.z + Moter_p.w;
-  M_p.y = -Moter_p.x + Moter_p.y + Moter_p.z - Moter_p.w;
-  M_p.z = -Moter_p.x + Moter_p.y - Moter_p.z + Moter_p.w;
+  target_thrust.z = 0.0;
+  M_p.x = 0.0;
+  M_p.y = 0.0;
+  M_p.z = 0.0;
 
 // determine Thrust input 
   if (setpoint->mode.z != modeDisable  && trpy_g.x != 0){
     // control->thrust = massThrust * target_thrust.z;
     control->thrust = target_thrust.z; 
+
+    // M.x = - (float)10000 * eRM.m[2][1];
+  // --- Logging param and saturation input ---
+    cmd_thrust = control->thrust;
+
+    control->roll = clamp(M_p.x, -32000, 32000);
+    control->pitch = clamp(M_p.y, -32000, 32000);
+    control->yaw = clamp(M_p.z, -32000, 32000);
+
+    control->flag = true;
+    control->m1 = Moter_p.x;
+    control->m2 = Moter_p.y;
+    control->m3 = Moter_p.z;
+    control->m4 = Moter_p.w;
+
+    cmd_roll = control->roll;
+    cmd_pitch = control->pitch;
+    cmd_yaw = control->yaw;
+
   } else{
 
     control->flag = false;
@@ -212,25 +242,6 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
     control->m3 = (float)0.0;
     control->m4 = (float)0.0;
   }
-
-  // M.x = - (float)10000 * eRM.m[2][1];
-// --- Logging param and saturation input ---
-  cmd_thrust = control->thrust;
-
-  control->roll = clamp(M_p.x, -32000, 32000);
-  control->pitch = clamp(M_p.y, -32000, 32000);
-  control->yaw = clamp(M_p.z, -32000, 32000);
-
-  control->flag = true;
-  control->m1 = Moter_p.x;
-  control->m2 = Moter_p.y;
-  control->m3 = Moter_p.z;
-  control->m4 = Moter_p.w;
-
-  cmd_roll = control->roll;
-  cmd_pitch = control->pitch;
-  cmd_yaw = control->yaw;
-
 }
 
 PARAM_GROUP_START(ctrlrpyt)
