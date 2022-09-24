@@ -49,23 +49,23 @@ IEEE International Conference on Robotics and Automation (ICRA), 2011.
 #define ATTITUDE_RATE_LPF_CUTOFF_FREQ 30.0f
 #define ATTITUDE_RATE_LPF_ENABLE false
 
-#define PID_Wx_KP  5.0 //250.0
-#define PID_Wx_KI  3.0  //500.0
+#define PID_Wx_KP  50.0 //250.0
+#define PID_Wx_KI  20.0  //500.0
 #define PID_Wx_KD  0.0  //2.5
-#define PID_Wx_INTEGRATION_LIMIT    33.3
+#define PID_Wx_INTEGRATION_LIMIT    1.0
 
-#define PID_Wy_KP  5.0 //250.0
-#define PID_Wy_KI  3.0  //500.0
+#define PID_Wy_KP  50.0 //250.0
+#define PID_Wy_KI  20.0  //500.0
 #define PID_Wy_KD  0.0  //2.5
-#define PID_Wy_INTEGRATION_LIMIT   33.3
+#define PID_Wy_INTEGRATION_LIMIT   1.0
 
-#define PID_Wz_KP  1.0 //120.0
-#define PID_Wz_KI  0.5  //16.7
+#define PID_Wz_KP  20.0 //120.0
+#define PID_Wz_KI  10.0  //16.7
 #define PID_Wz_KD  0.0  //0.0
-#define PID_Wz_INTEGRATION_LIMIT     166.7
+#define PID_Wz_INTEGRATION_LIMIT     1
 
 
-static float g_vehicleMass = 0.5; //0.027
+static float g_vehicleMass = 0.68; //0.027
 
 // Logging variables
 static float cmd_thrust;
@@ -84,6 +84,11 @@ static float WyOutput;
 static float desiredWz;
 static float stateWz;
 static float WzOutput;
+
+static float m1y;
+static float m2y;
+static float m3y;
+static float m4y;
 
 static float dt;
 
@@ -141,6 +146,10 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
   struct vec4 Moter_g;                // moter [gram]
   struct vec4 Moter_p;                // moter [gram]
   struct mat44 CT_rpyt2g=Ctrl_m(g_vehicleMass);
+  Moter_p.x = 0.0f;
+  Moter_p.y = 0.0f;
+  Moter_p.z = 0.0f;
+  Moter_p.w = 0.0f;
   // float dt;
   dt = (float)(1.0f/ATTITUDE_RATE);
   // kato: RATE_DO_EXECUTE is in stabilizer_types.h and ATTITUDE_RATE is 500 Hz
@@ -154,7 +163,7 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
   desiredWz = radians(setpoint->attitudeRate.yaw);
 
   stateWx = radians(sensors->gyro.x);
-  stateWy = -radians(sensors->gyro.y);
+  stateWy = radians(sensors->gyro.y);
   stateWz = radians(sensors->gyro.z);
   
   pidSetDesired(&pidWx, desiredWx);
@@ -175,17 +184,10 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
   trpy_g.x = setpoint->acceleration.z * (float)100.0;
   trpy_g.y = WxOutput;
   trpy_g.z = WyOutput;
-  trpy_g.w = WzOutput;
+  trpy_g.w = 0.0f;
 
 // --- change trpy[gram] to Moter[gram]
   Moter_g = mvmul4(CT_rpyt2g, trpy_g);
-
-  // Moter_p.x = Moter_g.x + 10000.0;
-  // Moter_p.y = Moter_g.y + 10000;
-  // Moter_p.z = Moter_g.z + 10000;
-  // Moter_p.w = Moter_g.w + 10000;
-
-
 // --- change gram to pwm
   
   if (Moter_g.x >= 0) {Moter_p.x = sqrtf((float)Moter_g.x*8.309953163553529e-7F+4.231999208818486e-6F)*2.406752433662037e+6F-4.951128620134714e+3F;}
@@ -199,6 +201,25 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
   
   if (Moter_g.w >= 0) {Moter_p.w = sqrtf((float)Moter_g.w*8.083914057959226e-7F+5.805476588712849e-6F)*2.474049062942287e+6F-5.961111523577613e+3F;}
   else{Moter_p.w = -(sqrtf((float)-Moter_g.w*8.083914057959226e-7F+5.805476588712849e-6F)*2.474049062942287e+6F-5.961111523577613e+3F);}
+
+  // ---- change torque to pwm
+  trpy_g.w = WzOutput*powf(10.0f, -4.0f);
+  m1y = 0.25f*trpy_g.w;
+  m2y = -0.25f*trpy_g.w;
+  m3y = 0.25f*trpy_g.w;
+  m4y = -0.25f*trpy_g.w;
+
+  if (m1y >= 0) {Moter_p.x += sqrtf((float)m1y*1.006001536082039e-10F+1.587299594622495e-13F)*1.988068534953908e+10F-7.920649662566478e+3F;}
+  else {Moter_p.x += -(sqrtf((float)-m1y*1.006001536082039e-10F+1.587299594622495e-13F)*1.988068534953908e+10F-7.920649662566478e+3F);}
+
+  if (m2y >= 0) {Moter_p.y += sqrtf((float)m2y*9.66189557532568e-11F+1.932237720338033e-13F)*2.069987182543716e+10F-9.09908944642907e+3F;}
+  else {Moter_p.y += -(sqrtf((float)-m2y*9.66189557532568e-11F+1.932237720338033e-13F)*2.069987182543716e+10F-9.09908944642907e+3F);}
+
+  if (m3y >= 0) {Moter_p.z += sqrtf((float)m3y*1.12726263933792e-10F+1.24935566032467e-13F)*1.774209425741873e+10F-6.271160652750821e+3F;}
+  else {Moter_p.z += -(sqrtf((float)-m3y*1.12726263933792e-10F+1.24935566032467e-13F)*1.774209425741873e+10F-6.271160652750821e+3F);}
+
+  if (m4y >= 0) {Moter_p.w += sqrtf((float)m4y*8.969381778123772e-11F+1.667909502882046e-13F)*2.229808084296265e+10F-9.106546870860521e+3F;}
+  else {Moter_p.w += -(sqrtf((float)-m4y*8.969381778123772e-11F+1.667909502882046e-13F)*2.229808084296265e+10F-9.106546870860521e+3F);}
 
   //calcurate input thrust and moment
   target_thrust.z = 0.0;
