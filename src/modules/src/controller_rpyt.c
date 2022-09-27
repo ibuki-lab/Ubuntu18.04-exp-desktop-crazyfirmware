@@ -50,16 +50,16 @@ IEEE International Conference on Robotics and Automation (ICRA), 2011.
 #define ATTITUDE_RATE_LPF_ENABLE false
 
 #define PID_Wx_KP  50.0 //250.0
-#define PID_Wx_KI  20.0  //500.0
+#define PID_Wx_KI  30.0  //500.0
 #define PID_Wx_KD  0.0  //2.5
-#define PID_Wx_INTEGRATION_LIMIT    1.0
+#define PID_Wx_INTEGRATION_LIMIT    1.5
 
 #define PID_Wy_KP  50.0 //250.0
-#define PID_Wy_KI  20.0  //500.0
+#define PID_Wy_KI  30.0  //500.0
 #define PID_Wy_KD  0.0  //2.5
-#define PID_Wy_INTEGRATION_LIMIT   1.0
+#define PID_Wy_INTEGRATION_LIMIT   1.5
 
-#define PID_Wz_KP  20.0 //120.0
+#define PID_Wz_KP  10.0 //120.0
 #define PID_Wz_KI  10.0  //16.7
 #define PID_Wz_KD  0.0  //0.0
 #define PID_Wz_INTEGRATION_LIMIT     1
@@ -190,17 +190,17 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
   Moter_g = mvmul4(CT_rpyt2g, trpy_g);
 // --- change gram to pwm
   
-  if (Moter_g.x >= 0) {Moter_p.x = sqrtf((float)Moter_g.x*8.309953163553529e-7F+4.231999208818486e-6F)*2.406752433662037e+6F-4.951128620134714e+3F;}
-  else {Moter_p.x = -(sqrtf((float)-Moter_g.x*8.309953163553529e-7F+4.231999208818486e-6F)*2.406752433662037e+6F-4.951128620134714e+3F);}
+  if (Moter_g.x >= 0) {Moter_p.x = sqrtf((float)Moter_g.x*8.309953163553529e-7F+8.77420076969215e-6F)*2.406752433662037e+6F-4.951128620134714e+3F;}
+  else {Moter_p.x = -(sqrtf((float)-Moter_g.x*8.309953163553529e-7F+8.77420076969215e-6F)*2.406752433662037e+6F-4.951128620134714e+3F);}
   
-  if (Moter_g.y >= 0) {Moter_p.y = sqrtf((float)Moter_g.y*8.763965396891775e-7F+4.838977432913171e-6F)*2.282071995297151e+6F-5.020028004430765e+3F;}
-  else {Moter_p.y = -(sqrtf((float)-Moter_g.y*8.763965396891775e-7F+4.838977432913171e-6F)*2.282071995297151e+6F-5.020028004430765e+3F);}
+  if (Moter_g.y >= 0) {Moter_p.y = sqrtf((float)Moter_g.y*8.055163101622383e-7F+7.721642422652054e-6F)*2.482879582658211e+6F-4.645633060543796e+3F;}
+  else {Moter_p.y = -(sqrtf((float)-Moter_g.y*8.055163101622383e-7F+7.721642422652054e-6F)*2.482879582658211e+6F-4.645633060543796e+3F);}
 
-  if (Moter_g.z >= 0) {Moter_p.z = sqrtf((float)Moter_g.z*8.464410710967024e-7F+5.931205410463058e-6F)*2.362834305061159e+6F-5.75446231128539e+3F;}
-  else{Moter_p.z = -(sqrtf((float)-Moter_g.z*8.464410710967024e-7F+5.931205410463058e-6F)*2.362834305061159e+6F-5.75446231128539e+3F);}
+  if (Moter_g.z >= 0) {Moter_p.z = sqrtf((float)Moter_g.z*8.464410710967024e-7F+1.206468234853723e-5F)*2.362834305061159e+6F-5.75446231128539e+3F;}
+  else{Moter_p.z = -(sqrtf((float)-Moter_g.z*8.464410710967024e-7F+1.206468234853723e-5F)*2.362834305061159e+6F-5.75446231128539e+3F);}
   
-  if (Moter_g.w >= 0) {Moter_p.w = sqrtf((float)Moter_g.w*8.083914057959226e-7F+5.805476588712849e-6F)*2.474049062942287e+6F-5.961111523577613e+3F;}
-  else{Moter_p.w = -(sqrtf((float)-Moter_g.w*8.083914057959226e-7F+5.805476588712849e-6F)*2.474049062942287e+6F-5.961111523577613e+3F);}
+  if (Moter_g.w >= 0) {Moter_p.w = sqrtf((float)Moter_g.w*7.319497424060322e-7F+1.662606485139558e-5F)*2.732428039971283e+6F-8.884984149138812e+3F;}
+  else{Moter_p.w = -(sqrtf((float)-Moter_g.w*7.319497424060322e-7F+1.662606485139558e-5F)*2.732428039971283e+6F-8.884984149138812e+3F);}
 
   // ---- change torque to pwm
   trpy_g.w = WzOutput*powf(10.0f, -4.0f);
@@ -209,17 +209,17 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
   m3y = 0.25f*trpy_g.w;
   m4y = -0.25f*trpy_g.w;
 
-  if (m1y >= 0) {Moter_p.x += sqrtf((float)m1y*1.006001536082039e-10F+1.587299594622495e-13F)*1.988068534953908e+10F-7.920649662566478e+3F;}
-  else {Moter_p.x += -(sqrtf((float)-m1y*1.006001536082039e-10F+1.587299594622495e-13F)*1.988068534953908e+10F-7.920649662566478e+3F);}
+  if (m1y >= 0) {Moter_p.x += m1y*2.141865320609748e+6F-powf(m1y, 2.0f)*1.033497756927838e+8F+powf(m1y, 3.0f)*2.905723618527212e+9F-powf(m1y, 4.0f)*2.884278638991346e+10F+1.300532417476346e+3F;}
+  else {Moter_p.x += -(-m1y*2.141865320609748e+6F-powf(m1y, 2.0f)*1.033497756927838e+8F-powf(m1y, 3.0f)*2.905723618527212e+9F-powf(m1y, 4.0f)*2.884278638991346e+10F+1.300532417476346e+3F);}
 
-  if (m2y >= 0) {Moter_p.y += sqrtf((float)m2y*9.66189557532568e-11F+1.932237720338033e-13F)*2.069987182543716e+10F-9.09908944642907e+3F;}
-  else {Moter_p.y += -(sqrtf((float)-m2y*9.66189557532568e-11F+1.932237720338033e-13F)*2.069987182543716e+10F-9.09908944642907e+3F);}
+  if (m2y >= 0) {Moter_p.y += m2y*2.432737424685642e+6F-powf(m2y, 2.0f)*1.286871454413272e+8F+powf(m2y, 3.0f)*3.928300224414117e+9F-powf(m2y, 4.0f)*4.228794888833972e+10F+9.727547991878159e+2F;}
+  else {Moter_p.y += -(-m2y*2.432737424685642e+6F-powf(m2y, 2.0f)*1.286871454413272e+8F-powf(m2y, 3.0f)*3.928300224414117e+9F-powf(m2y, 4.0f)*4.228794888833972e+10F+9.727547991878159e+2F);}
 
-  if (m3y >= 0) {Moter_p.z += sqrtf((float)m3y*1.12726263933792e-10F+1.24935566032467e-13F)*1.774209425741873e+10F-6.271160652750821e+3F;}
-  else {Moter_p.z += -(sqrtf((float)-m3y*1.12726263933792e-10F+1.24935566032467e-13F)*1.774209425741873e+10F-6.271160652750821e+3F);}
+  if (m3y >= 0) {Moter_p.z += m3y*2.094467788762548e+6F-powf(m3y, 2.0f)*9.594678104859331e+7F+powf(m3y, 3.0f)*2.521879977781375e+9F-powf(m3y, 4.0f)*2.349805874173285e+10F+1.278771640750342e+3F;}
+  else {Moter_p.z += -(-m3y*2.094467788762548e+6F-powf(m3y, 2.0f)*9.594678104859331e+7F-powf(m3y, 3.0f)*2.521879977781375e+9F-powf(m3y, 4.0f)*2.349805874173285e+10F+1.278771640750342e+3F);}
 
-  if (m4y >= 0) {Moter_p.w += sqrtf((float)m4y*8.969381778123772e-11F+1.667909502882046e-13F)*2.229808084296265e+10F-9.106546870860521e+3F;}
-  else {Moter_p.w += -(sqrtf((float)-m4y*8.969381778123772e-11F+1.667909502882046e-13F)*2.229808084296265e+10F-9.106546870860521e+3F);}
+  if (m4y >= 0) {Moter_p.w += m4y*2.084297084480703e+6F-powf(m4y, 2.0f)*1.004366436546806e+8F+powf(m4y, 3.0f)*2.901064905848298e+9F-powf(m4y, 4.0f)*2.949112617497505e+10F+1.286587313476963e+3F;}
+  else {Moter_p.w += -(-m4y*2.084297084480703e+6F-powf(m4y, 2.0f)*1.004366436546806e+8F-powf(m4y, 3.0f)*2.901064905848298e+9F-powf(m4y, 4.0f)*2.949112617497505e+10F+1.286587313476963e+3F);}
 
   //calcurate input thrust and moment
   target_thrust.z = 0.0;

@@ -104,7 +104,7 @@ void controllerthrust(control_t *control, setpoint_t *setpoint,
 // determine Thrust input 
   if (setpoint->mode.z != modeDisable){
     // control->thrust = massThrust * target_thrust.z;
-    control->thrust = target_thrust.z * (float)1000;
+    control->thrust = target_thrust.z * (float)10000;
   } else{
     control->thrust = (float)0 * target_thrust.z;
     M.z = (float)0.0;
@@ -114,7 +114,7 @@ void controllerthrust(control_t *control, setpoint_t *setpoint,
 
   // M.x = - (float)10000 * eRM.m[2][1];
 // --- Logging param and saturation input ---
-  cmd_thrust = clamp(control->thrust, 0, 30000);
+  cmd_thrust = clamp(control->thrust, 0, 35000);
 
   control->roll = clamp(M.x, -32000, 32000);
   control->pitch = clamp(M.y, -32000, 32000);
