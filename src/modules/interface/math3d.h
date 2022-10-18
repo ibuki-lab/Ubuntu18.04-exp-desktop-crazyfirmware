@@ -562,10 +562,10 @@ static inline struct mat44 mzero44(void) {
 static inline struct mat44 Ctrl_m(float mass) {
 	struct mat44 m = mzero44();
 	// thrust
-	m.m[0][0] = mass *1000.0f/(4.0f*9.8f);
-	m.m[1][0] = mass *1000.0f/(4.0f*9.8f);
-	m.m[2][0] = mass *1000.0f/(4.0f*9.8f);
-	m.m[3][0] = mass *1000.0f/(4.0f*9.8f);
+	m.m[0][0] = mass/4.0f;
+	m.m[1][0] = mass/4.0f;
+	m.m[2][0] = mass/4.0f;
+	m.m[3][0] = mass/4.0f;
 	// roll
 	m.m[0][1] = -0.25;
 	m.m[1][1] = -0.25;
