@@ -49,23 +49,23 @@ IEEE International Conference on Robotics and Automation (ICRA), 2011.
 #define ATTITUDE_RATE_LPF_CUTOFF_FREQ 30.0f
 #define ATTITUDE_RATE_LPF_ENABLE false
 
-#define PID_Wx_KP  50.0 //250.0
-#define PID_Wx_KI  20.0  //500.0
+#define PID_Wx_KP  2.1 //50
+#define PID_Wx_KI  0.1  //500.0
 #define PID_Wx_KD  0.0  //2.5
 #define PID_Wx_INTEGRATION_LIMIT    1.5
 
-#define PID_Wy_KP  50.0 //250.0
-#define PID_Wy_KI  20.0  //500.0
+#define PID_Wy_KP  2.1 //50
+#define PID_Wy_KI  0.1  //500.0
 #define PID_Wy_KD  0.0  //2.5
 #define PID_Wy_INTEGRATION_LIMIT   1.5
 
-#define PID_Wz_KP  10.0 //120.0
-#define PID_Wz_KI  10.0  //16.7
+#define PID_Wz_KP  0.1 //120.0
+#define PID_Wz_KI  0.05  //16.7
 #define PID_Wz_KD  0.0  //0.0
 #define PID_Wz_INTEGRATION_LIMIT     1
 
 
-static float g_vehicleMass = 0.583; //0.027 battery full:0.45
+static float g_vehicleMass = 0.558; //0.027 battery full:0.45
 
 // Logging variables
 static float cmd_thrust;
@@ -112,6 +112,16 @@ static inline int16_t saturateSignedInt16(float in)
   else
     return (int16_t)in;
 }
+static inline float saturateYawTorque(float in)
+{
+  // don't use INT16_MIN, because later we may negate it, which won't work for that value.
+  if (in > 0.04f)
+    return 0.04f;
+  else if (in < -0.04f)
+    return -0.04f;
+  else
+    return (float)in;
+}
 
 void controllerrpytReset(void)
 {
@@ -156,9 +166,9 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
   Moter_p.y = 0.0f;
   Moter_p.z = 0.0f;
   Moter_p.w = 0.0f;
-  Ix = powf(10.0f, -3.0f);
-  Iy = powf(10.0f, -3.0f);
-  Iz = powf(10.0f, -4.0f);
+  Ix = 1.0f*powf(10.0f, -1.0f);
+  Iy = 1.0f*powf(10.0f, -1.0f);
+  Iz = 1.0f*powf(10.0f, -1.0f);
   // float dt;
   dt = (float)(1.0f/ATTITUDE_RATE);
   // kato: RATE_DO_EXECUTE is in stabilizer_types.h and ATTITUDE_RATE is 500 Hz
@@ -191,8 +201,8 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
 
   // target_thrust.z = - 25.0f * thrustScale * Vel_error.z - 0.0f * z_error_i + 36000.0f;
   trpy_g.x = setpoint->acceleration.z * (float)100.0;
-  trpy_g.y = sqrtf(2) * Iy * WxOutput / Arm_L;
-  trpy_g.z = sqrtf(2) * Ix * WyOutput / Arm_L;
+  trpy_g.y = sqrtf(2) * Iy * WxOutput / Arm_L  + (stateWx*Iz*stateWz - stateWz*Ix*stateWx); // F = M/L
+  trpy_g.z = sqrtf(2) * Ix * WyOutput / Arm_L + (stateWy*Iz*stateWz - stateWz*Iy*stateWy);
   trpy_g.w = 0.0f;
 
 // --- change trpy[gram] to Moter[gram]
@@ -213,10 +223,10 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
 
   // ---- change torque to pwm
   trpy_g.w = WzOutput*Iz;
-  m1y = 0.25f*trpy_g.w;
-  m2y = -0.25f*trpy_g.w;
-  m3y = 0.25f*trpy_g.w;
-  m4y = -0.25f*trpy_g.w;
+  m1y = saturateYawTorque(0.25f*trpy_g.w);
+  m2y = saturateYawTorque(-0.25f*trpy_g.w);
+  m3y = saturateYawTorque(0.25f*trpy_g.w);
+  m4y = saturateYawTorque(-0.25f*trpy_g.w);
 
   if (m1y >= 0) {Moter_p.x += m1y*1.972462809575412e+6F-powf(m1y, 2.0f)*8.540142042526409e+7F+powf(m1y, 3.0f)*2.160322149978045e+9F-powf(m1y, 4.0f)*1.934880389335135e+10F+1.18794316827178e+3F;}
   else {Moter_p.x += -(-m1y*1.972462809575412e+6F-powf(m1y, 2.0f)*8.540142042526409e+7F-powf(m1y, 3.0f)*2.160322149978045e+9F-powf(m1y, 4.0f)*1.934880389335135e+10F+1.18794316827178e+3F);}
