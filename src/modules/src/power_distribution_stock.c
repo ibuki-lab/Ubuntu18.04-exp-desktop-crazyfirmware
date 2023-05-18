@@ -71,7 +71,7 @@ bool powerDistributionTest(void)
   return pass;
 }
 
-#define limitThrust(VAL) limit35000(VAL)
+#define limitThrust(VAL) limitUint16(VAL)
 
 void powerStop()
 {
