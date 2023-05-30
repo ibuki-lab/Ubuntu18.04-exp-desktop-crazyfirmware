@@ -177,9 +177,9 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
   }
 // --- calculate Rollrate Pitchrate error (P, I, D) ---
 
-  desiredWx = setpoint->attitudeRate.roll;
-  desiredWy = setpoint->attitudeRate.pitch;
-  desiredWz = setpoint->attitudeRate.yaw;
+  desiredWx = radians(setpoint->attitudeRate.roll);
+  desiredWy = radians(setpoint->attitudeRate.pitch);
+  desiredWz = radians(setpoint->attitudeRate.yaw);
 
   stateWx = radians(sensors->gyro.x);
   stateWy = radians(sensors->gyro.y);
