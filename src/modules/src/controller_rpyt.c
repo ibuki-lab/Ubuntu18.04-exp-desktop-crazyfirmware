@@ -49,12 +49,12 @@ IEEE International Conference on Robotics and Automation (ICRA), 2011.
 #define ATTITUDE_RATE_LPF_CUTOFF_FREQ 30.0f
 #define ATTITUDE_RATE_LPF_ENABLE false
 
-#define PID_Wx_KP  2 //50
+#define PID_Wx_KP  2.1 //50
 #define PID_Wx_KI  0.01  //500.0
 #define PID_Wx_KD  0.0  //2.5
 #define PID_Wx_INTEGRATION_LIMIT    1.5
 
-#define PID_Wy_KP  2 //50
+#define PID_Wy_KP  2.1 //50
 #define PID_Wy_KI  0.01  //500.0
 #define PID_Wy_KD  0.0  //2.5
 #define PID_Wy_INTEGRATION_LIMIT   1.5
@@ -65,7 +65,7 @@ IEEE International Conference on Robotics and Automation (ICRA), 2011.
 #define PID_Wz_INTEGRATION_LIMIT     1
 
 
-static float g_vehicleMass = 0.55; //0.027 battery full:0.45
+static float g_vehicleMass = 0.545; //0.027 battery full:0.45
 
 // Logging variables
 static float cmd_thrust;
@@ -177,9 +177,9 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
   }
 // --- calculate Rollrate Pitchrate error (P, I, D) ---
 
-  desiredWx = setpoint->attitudeRate.roll;
-  desiredWy = setpoint->attitudeRate.pitch;
-  desiredWz = setpoint->attitudeRate.yaw;
+  desiredWx = radians(setpoint->attitudeRate.roll);
+  desiredWy = radians(setpoint->attitudeRate.pitch);
+  desiredWz = radians(setpoint->attitudeRate.yaw);
 
   stateWx = radians(sensors->gyro.x);
   stateWy = radians(sensors->gyro.y);
