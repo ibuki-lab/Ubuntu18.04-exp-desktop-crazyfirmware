@@ -209,36 +209,36 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
   Moter_g = mvmul4(CT_rpyt2g, trpy_g);
 // --- change gram to pwm
   
-  if (Moter_g.x >= 0) {Moter_p.x = sqrtf((float)Moter_g.x*8.746454211812262e-9F+1.280608521387491e-9F)*2.28664090792239e+8F-5.914182129481692e+3F;}
-  else {Moter_p.x = -(sqrtf((float)-Moter_g.x*8.746454211812262e-9F+1.280608521387491e-9F)*2.28664090792239e+8F-5.914182129481692e+3F);}
-  
-  if (Moter_g.y >= 0) {Moter_p.y = sqrtf((float)Moter_g.y*7.784387419895479e-9F+1.160848849564822e-9F)*2.56924519826488e+8F-6.582814614736632e+3F;}
-  else {Moter_p.y = -(sqrtf((float)-Moter_g.y*7.784387419895479e-9F+1.160848849564822e-9F)*2.56924519826488e+8F-6.582814614736632e+3F);}
+    if (Moter_g.x >= 0) {Moter_p.x = sqrtf((float)Moter_g.x*1.203748395096266e-8F+3.105056364174569e-9F)*1.661476773840315e+8F+9.157440962371672e+2F;}
+    else {Moter_p.x = -(sqrtf((float)-Moter_g.x*1.203748395096266e-8F+3.105056364174569e-9F)*1.661476773840315e+8F+9.157440962371672e+2F);}
+    
+    if (Moter_g.y >= 0) {Moter_p.y = sqrtf((float)Moter_g.y*1.124173012519572e-8F+7.464818327825173e-9F)*1.779085583559301e+8F-5.584311148240849e+3F;}
+    else {Moter_p.y = -(sqrtf((float)-Moter_g.y*1.124173012519572e-8F+7.464818327825173e-9F)*1.779085583559301e+8F-5.584311148240849e+3F);}
 
-  if (Moter_g.z >= 0) {Moter_p.z = sqrtf((float)Moter_g.z*8.308971069381441e-9F+9.542541377640133e-10F)*2.407036904208272e+8F-5.608689869160311e+3F;}
-  else{Moter_p.z = -(sqrtf((float)-Moter_g.z*8.308971069381441e-9F+9.542541377640133e-10F)*2.407036904208272e+8F-5.608689869160311e+3F);}
-  
-  if (Moter_g.w >= 0) {Moter_p.w = sqrtf((float)Moter_g.w*7.579233605794426e-9F+1.571593599291622e-9F)*2.638789228598223e+8F-8.330685304890129e+3F;}
-  else{Moter_p.w = -(sqrtf((float)-Moter_g.w*7.579233605794426e-9F+1.571593599291622e-9F)*2.638789228598223e+8F-8.330685304890129e+3F);}
+    if (Moter_g.z >= 0) {Moter_p.z = sqrtf((float)Moter_g.z*1.031569907393591e-8F+3.505772084729902e-9F)*1.93879250030983e+8F-1.428391435784615e+3F;}
+    else{Moter_p.z = -(sqrtf((float)-Moter_g.z*1.031569907393591e-8F+3.505772084729902e-9F)*1.93879250030983e+8F-1.428391435784615e+3F);}
+    
+    if (Moter_g.w >= 0) {Moter_p.w = sqrtf((float)Moter_g.w*8.440349453170037e-9F+8.496912413558485e-9F)*2.369570135806211e+8F-1.214683672940033e+4F;}
+    else{Moter_p.w = -(sqrtf((float)-Moter_g.w*8.440349453170037e-9F+8.496912413558485e-9F)*2.369570135806211e+8F-1.214683672940033e+4F);}
 
-  // ---- change torque to pwm
-  trpy_g.w = WzOutput*Iz;
-  m1y = saturateYawTorque(0.25f*trpy_g.w);
-  m2y = saturateYawTorque(-0.25f*trpy_g.w);
-  m3y = saturateYawTorque(0.25f*trpy_g.w);
-  m4y = saturateYawTorque(-0.25f*trpy_g.w);
+    // ---- change torque to pwm
+    trpy_g.w = WzOutput*Iz;
+    m1y = saturateYawTorque(0.25f*trpy_g.w);
+    m2y = saturateYawTorque(-0.25f*trpy_g.w);
+    m3y = saturateYawTorque(0.25f*trpy_g.w);
+    m4y = saturateYawTorque(-0.25f*trpy_g.w);
 
-  if (m1y >= 0) {Moter_p.x += m1y*1.972462809575412e+6F-powf(m1y, 2.0f)*8.540142042526409e+7F+powf(m1y, 3.0f)*2.160322149978045e+9F-powf(m1y, 4.0f)*1.934880389335135e+10F+1.18794316827178e+3F;}
-  else {Moter_p.x += -(-m1y*1.972462809575412e+6F-powf(m1y, 2.0f)*8.540142042526409e+7F-powf(m1y, 3.0f)*2.160322149978045e+9F-powf(m1y, 4.0f)*1.934880389335135e+10F+1.18794316827178e+3F);}
+    if (m1y >= 0) {Moter_p.x += m1y*1.393686317365852e+6F-powf(m1y, 2.0f)*5.07155116459484e+7F+powf(m1y, 3.0f)*1.075427444355825e+9F-powf(m1y, 4.0f)*7.930133530629074e+9F+9.439430455195639e+3F;}
+    else {Moter_p.x += -(-m1y*1.393686317365852e+6F-powf(m1y, 2.0f)*5.07155116459484e+7F-powf(m1y, 3.0f)*1.075427444355825e+9F-powf(m1y, 4.0f)*7.930133530629074e+9F+9.439430455195639e+3F);}
 
-  if (m2y >= 0) {Moter_p.y += m2y*2.258409150995067e+6F-powf(m2y, 2.0f)*1.194174502034637e+8F+powf(m2y, 3.0f)*3.622150201229846e+9F-powf(m2y, 4.0f)*3.829605650204248e+10F+1.505118375565417e+3F;}
-  else {Moter_p.y += -(-m2y*2.258409150995067e+6F-powf(m2y, 2.0f)*1.194174502034637e+8F-powf(m2y, 3.0f)*3.622150201229846e+9F-powf(m2y, 4.0f)*3.829605650204248e+10F+1.505118375565417e+3F);}
+    if (m2y >= 0) {Moter_p.y += m2y*1.074178955285262e+6F-powf(m2y, 2.0f)*2.979138613839607e+7F+powf(m2y, 3.0f)*5.207633149970769e+8F-powf(m2y, 4.0f)*3.174318820183371e+9F+8.825512975179619e+3F;}
+    else {Moter_p.y += -(-m2y*1.074178955285262e+6F-powf(m2y, 2.0f)*2.979138613839607e+7F-powf(m2y, 3.0f)*5.207633149970769e+8F-powf(m2y, 4.0f)*3.174318820183371e+9F+8.825512975179619e+3F);}
 
-  if (m3y >= 0) {Moter_p.z += m3y*1.900760294497556e+6F-powf(m3y, 2.0f)*7.296413958824399e+7F+powf(m3y, 3.0f)*1.75802477736957e+9F-powf(m3y, 4.0f)*1.537286308440307e+10F+1.140378949262509e+2F;}
-  else {Moter_p.z += -(-m3y*1.900760294497556e+6F-powf(m3y, 2.0f)*7.296413958824399e+7F-powf(m3y, 3.0f)*1.75802477736957e+9F-powf(m3y, 4.0f)*1.537286308440307e+10F+1.140378949262509e+2F);}
+    if (m3y >= 0) {Moter_p.z += m3y*1.399128527305362e+6F-powf(m3y, 2.0f)*5.143232980992896e+7F+powf(m3y, 3.0f)*1.100597442722606e+9F-powf(m3y, 4.0f)*8.112281275115901e+9F+9.117411551453482e+3F;}
+    else {Moter_p.z += -(-m3y*1.399128527305362e+6F-powf(m3y, 2.0f)*5.143232980992896e+7F-powf(m3y, 3.0f)*1.100597442722606e+9F-powf(m3y, 4.0f)*8.112281275115901e+9F+9.117411551453482e+3F);}
 
-  if (m4y >= 0) {Moter_p.w += m4y*1.924196710241383e+6F-powf(m4y, 2.0f)*8.409577635107751e+7F+powf(m4y, 3.0f)*2.163985380337182e+9F-powf(m4y, 4.0f)*1.955878508632528e+10F+1.330285503005834e+3F;}
-  else {Moter_p.w += -(-m4y*1.924196710241383e+6F-powf(m4y, 2.0f)*8.409577635107751e+7F-powf(m4y, 3.0f)*2.163985380337182e+9F-powf(m4y, 4.0f)*1.955878508632528e+10F+1.330285503005834e+3F);}
+    if (m4y >= 0) {Moter_p.w += m4y*1.118828038178064e+6F-powf(m4y, 2.0f)*3.35048390990628e+7F+powf(m4y, 3.0f)*6.456865503394263e+8F-powf(m4y, 4.0f)*4.244127504638763e+9F+8.652169410959928e+3F;}
+    else {Moter_p.w += -(-m4y*1.118828038178064e+6F-powf(m4y, 2.0f)*3.35048390990628e+7F-powf(m4y, 3.0f)*6.456865503394263e+8F-powf(m4y, 4.0f)*4.244127504638763e+9F+8.652169410959928e+3F);}
 
   //calcurate input thrust and moment
   target_thrust.z = 0.0;
