@@ -238,7 +238,7 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
     else {Moter_p.z += -(-m3y*1.967492863747708e+6F-powf(m3y, 2.0f)*8.411818439232209e+7F-powf(m3y, 3.0f)*2.362724763695375e+9F-powf(m3y, 4.0f)*2.398809167967382e+10F+1.793703295788778e+3F);}
 
     if (m4y >= 0) {Moter_p.w += m4y*1.927469687835158e+6F-powf(m4y, 2.0f)*8.366537126870649e+7F+powf(m4y, 3.0f)*2.460060651291917e+9F-powf(m4y, 4.0f)*2.601649078162177e+10F+2.24410148942949e+3F;}
-    else {Moter_p.w += -(-m4y*1.927469687835158e+6F-powf(m4y, 2.0f)*8.366537126870649e+7F-powf(m4y, 3.0f)*2.460060651291917e+9F-powf(m4y, 4.0f)*2.601649078162177e+10);}
+    else {Moter_p.w += -(-m4y*1.927469687835158e+6F-powf(m4y, 2.0f)*8.366537126870649e+7F-powf(m4y, 3.0f)*2.460060651291917e+9F-powf(m4y, 4.0f)*2.601649078162177e+10F+2.24410148942949e+3F);}
 
   //calcurate input thrust and moment
   target_thrust.z = 0.0;
