@@ -177,9 +177,9 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
   }
 // --- calculate Rollrate Pitchrate error (P, I, D) ---
 
-  desiredWx = setpoint->attitudeRate.roll;
-  desiredWy = setpoint->attitudeRate.pitch;
-  desiredWz = setpoint->attitudeRate.yaw;
+  desiredWx = radians(setpoint->attitudeRate.roll);
+  desiredWy = radians(setpoint->attitudeRate.pitch);
+  desiredWz = radians(setpoint->attitudeRate.yaw);
 
   stateWx = radians(sensors->gyro.x);
   stateWy = radians(sensors->gyro.y);
@@ -209,17 +209,17 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
   Moter_g = mvmul4(CT_rpyt2g, trpy_g);
 // --- change gram to pwm
   
-    if (Moter_g.x >= 0) {Moter_p.x = sqrtf((float)Moter_g.x*1.203748395096266e-8F+3.105056364174569e-9F)*1.661476773840315e+8F+9.157440962371672e+2F;}
-    else {Moter_p.x = -(sqrtf((float)-Moter_g.x*1.203748395096266e-8F+3.105056364174569e-9F)*1.661476773840315e+8F+9.157440962371672e+2F);}
+    if (Moter_g.x >= 0) {Moter_p.x = sqrtf((float)Moter_g.x*6.464028761967147e-9F+1.773789097357018e-9F)*3.094045638793469e+8F-9.482958575980405e+3F;}
+    else {Moter_p.x = -(sqrtf((float)-Moter_g.x*6.464028761967147e-9F+1.773789097357018e-9F)*3.094045638793469e+8F-9.482958575980405e+3F);}
     
-    if (Moter_g.y >= 0) {Moter_p.y = sqrtf((float)Moter_g.y*1.124173012519572e-8F+7.464818327825173e-9F)*1.779085583559301e+8F-5.584311148240849e+3F;}
-    else {Moter_p.y = -(sqrtf((float)-Moter_g.y*1.124173012519572e-8F+7.464818327825173e-9F)*1.779085583559301e+8F-5.584311148240849e+3F);}
+    if (Moter_g.y >= 0) {Moter_p.y = sqrtf((float)Moter_g.y*6.613057491834497e-9F+1.415733592952538e-9F)*3.02431969247131e+8F-8.529008734507122e+3F;}
+    else {Moter_p.y = -(sqrtf((float)-Moter_g.y*6.613057491834497e-9F+1.415733592952538e-9F)*3.02431969247131e+8F-8.529008734507122e+3F);}
 
-    if (Moter_g.z >= 0) {Moter_p.z = sqrtf((float)Moter_g.z*1.031569907393591e-8F+3.505772084729902e-9F)*1.93879250030983e+8F-1.428391435784615e+3F;}
-    else{Moter_p.z = -(sqrtf((float)-Moter_g.z*1.031569907393591e-8F+3.505772084729902e-9F)*1.93879250030983e+8F-1.428391435784615e+3F);}
+    if (Moter_g.z >= 0) {Moter_p.z = sqrtf((float)Moter_g.z*6.60478003659676e-9F+1.503643659196235e-9F)*3.028109927837261e+8F-8.850721455636523e+3F;}
+    else{Moter_p.z = -(sqrtf((float)-Moter_g.z*6.60478003659676e-9F+1.503643659196235e-9F)*3.028109927837261e+8F-8.850721455636523e+3F);}
     
-    if (Moter_g.w >= 0) {Moter_p.w = sqrtf((float)Moter_g.w*8.440349453170037e-9F+8.496912413558485e-9F)*2.369570135806211e+8F-1.214683672940033e+4F;}
-    else{Moter_p.w = -(sqrtf((float)-Moter_g.w*8.440349453170037e-9F+8.496912413558485e-9F)*2.369570135806211e+8F-1.214683672940033e+4F);}
+    if (Moter_g.w >= 0) {Moter_p.w = sqrtf((float)Moter_g.w*6.355428270218631e-9F+1.768381062737116e-9F)*3.146916171443468e+8F-1.017905717032098e+4F;}
+    else{Moter_p.w = -(sqrtf((float)-Moter_g.w*6.355428270218631e-9F+1.768381062737116e-9F)*3.146916171443468e+8F-1.017905717032098e+4F);}
 
     // ---- change torque to pwm
     trpy_g.w = WzOutput*Iz;
@@ -228,17 +228,17 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
     m3y = saturateYawTorque(0.25f*trpy_g.w);
     m4y = saturateYawTorque(-0.25f*trpy_g.w);
 
-    if (m1y >= 0) {Moter_p.x += m1y*1.393686317365852e+6F-powf(m1y, 2.0f)*5.07155116459484e+7F+powf(m1y, 3.0f)*1.075427444355825e+9F-powf(m1y, 4.0f)*7.930133530629074e+9F+9.439430455195639e+3F;}
-    else {Moter_p.x += -(-m1y*1.393686317365852e+6F-powf(m1y, 2.0f)*5.07155116459484e+7F-powf(m1y, 3.0f)*1.075427444355825e+9F-powf(m1y, 4.0f)*7.930133530629074e+9F+9.439430455195639e+3F);}
+    if (m1y >= 0) {Moter_p.x += m1y*2.050753578936802e+6F-powf(m1y, 2.0f)*9.942465337063488e+7F+powf(m1y, 3.0f)*3.025909122377337e+9F-powf(m1y, 4.0f)*3.265876700042565e+10F+2.112388231953692e+3F;}
+    else {Moter_p.x += -(-m1y*2.050753578936802e+6F-powf(m1y, 2.0f)*9.942465337063488e+7F-powf(m1y, 3.0f)*3.025909122377337e+9F-powf(m1y, 4.0f)*3.265876700042565e+10F+2.112388231953692e+3F);}
 
-    if (m2y >= 0) {Moter_p.y += m2y*1.074178955285262e+6F-powf(m2y, 2.0f)*2.979138613839607e+7F+powf(m2y, 3.0f)*5.207633149970769e+8F-powf(m2y, 4.0f)*3.174318820183371e+9F+8.825512975179619e+3F;}
-    else {Moter_p.y += -(-m2y*1.074178955285262e+6F-powf(m2y, 2.0f)*2.979138613839607e+7F-powf(m2y, 3.0f)*5.207633149970769e+8F-powf(m2y, 4.0f)*3.174318820183371e+9F+8.825512975179619e+3F);}
+    if (m2y >= 0) {Moter_p.y += m2y*1.974244643355263e+6F-powf(m2y, 2.0f)*8.676645786022411e+7F+powf(m2y, 3.0f)*2.606291805354955e+9F-powf(m2y, 4.0f)*2.838713087085774e+10F+1.886148759627104e+3F;}
+    else {Moter_p.y += -(-m2y*1.974244643355263e+6F-powf(m2y, 2.0f)*8.676645786022411e+7F-powf(m2y, 3.0f)*2.606291805354955e+9F-powf(m2y, 4.0f)*2.838713087085774e+10F+1.886148759627104e+3F);}
 
-    if (m3y >= 0) {Moter_p.z += m3y*1.399128527305362e+6F-powf(m3y, 2.0f)*5.143232980992896e+7F+powf(m3y, 3.0f)*1.100597442722606e+9F-powf(m3y, 4.0f)*8.112281275115901e+9F+9.117411551453482e+3F;}
-    else {Moter_p.z += -(-m3y*1.399128527305362e+6F-powf(m3y, 2.0f)*5.143232980992896e+7F-powf(m3y, 3.0f)*1.100597442722606e+9F-powf(m3y, 4.0f)*8.112281275115901e+9F+9.117411551453482e+3F);}
+    if (m3y >= 0) {Moter_p.z += m3y*1.967492863747708e+6F-powf(m3y, 2.0f)*8.411818439232209e+7F+powf(m3y, 3.0f)*2.362724763695375e+9F-powf(m3y, 4.0f)*2.398809167967382e+10F+1.793703295788778e+3F;}
+    else {Moter_p.z += -(-m3y*1.967492863747708e+6F-powf(m3y, 2.0f)*8.411818439232209e+7F-powf(m3y, 3.0f)*2.362724763695375e+9F-powf(m3y, 4.0f)*2.398809167967382e+10F+1.793703295788778e+3F);}
 
-    if (m4y >= 0) {Moter_p.w += m4y*1.118828038178064e+6F-powf(m4y, 2.0f)*3.35048390990628e+7F+powf(m4y, 3.0f)*6.456865503394263e+8F-powf(m4y, 4.0f)*4.244127504638763e+9F+8.652169410959928e+3F;}
-    else {Moter_p.w += -(-m4y*1.118828038178064e+6F-powf(m4y, 2.0f)*3.35048390990628e+7F-powf(m4y, 3.0f)*6.456865503394263e+8F-powf(m4y, 4.0f)*4.244127504638763e+9F+8.652169410959928e+3F);}
+    if (m4y >= 0) {Moter_p.w += m4y*1.927469687835158e+6F-powf(m4y, 2.0f)*8.366537126870649e+7F+powf(m4y, 3.0f)*2.460060651291917e+9F-powf(m4y, 4.0f)*2.601649078162177e+10F+2.24410148942949e+3F;}
+    else {Moter_p.w += -(-m4y*1.927469687835158e+6F-powf(m4y, 2.0f)*8.366537126870649e+7F-powf(m4y, 3.0f)*2.460060651291917e+9F-powf(m4y, 4.0f)*2.601649078162177e+10F+2.24410148942949e+3F);}
 
   //calcurate input thrust and moment
   target_thrust.z = 0.0;
