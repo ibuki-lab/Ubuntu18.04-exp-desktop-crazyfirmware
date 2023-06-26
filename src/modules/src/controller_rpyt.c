@@ -166,9 +166,9 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
   Moter_p.y = 0.0f;
   Moter_p.z = 0.0f;
   Moter_p.w = 0.0f;
-  Ix = 1.0f*powf(5.0f, -1.0f);
-  Iy = 1.0f*powf(5.0f, -1.0f);
-  Iz = 1.0f*powf(5.0f, -1.0f);
+  Ix = 0.5f*powf(10.0f, -1.0f);
+  Iy = 0.5f*powf(10.0f, -1.0f);
+  Iz = 0.5f*powf(10.0f, -1.0f);
   // float dt;
   dt = (float)(1.0f/ATTITUDE_RATE);
   // kato: RATE_DO_EXECUTE is in stabilizer_types.h and ATTITUDE_RATE is 500 Hz
