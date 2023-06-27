@@ -94,7 +94,7 @@ static float Ix;
 static float Iy;
 static float Iz;
 
-static float Arm_L = 0.17;
+static float Arm_L = 0.13;
 
 static float dt;
 
@@ -166,9 +166,9 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
   Moter_p.y = 0.0f;
   Moter_p.z = 0.0f;
   Moter_p.w = 0.0f;
-  Ix = 0.5f*powf(10.0f, -1.0f);
-  Iy = 0.5f*powf(10.0f, -1.0f);
-  Iz = 0.5f*powf(10.0f, -1.0f);
+  Ix = 0.8f*powf(10.0f, -1.0f);
+  Iy = 0.8f*powf(10.0f, -1.0f);
+  Iz = 1.0f*powf(10.0f, -1.0f);
   // float dt;
   dt = (float)(1.0f/ATTITUDE_RATE);
   // kato: RATE_DO_EXECUTE is in stabilizer_types.h and ATTITUDE_RATE is 500 Hz
@@ -235,7 +235,7 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
     else {Moter_p.y += -(-m2y*2.149639083455116e+6F-powf(m2y, 2.0f)*6.803893846695112e+7F-powf(m2y, 3.0f)*1.536492175525759e+9F-powf(m2y, 4.0f)*1.292287693311652e+10F+2.828993334806114e+3F);}
 
     if (m3y >= 0) {Moter_p.z += m3y*2.484916365761186e+6F-powf(m3y, 2.0f)*9.434339044685014e+7F+powf(m3y, 3.0f)*2.545856842307786e+9F-powf(m3y, 4.0f)*2.543056087992886e+10F+2.704129092816906e+3F;}
-    else {Moter_p.z += -(-m3y*2.484916365761186e+6-powf(m3y, 2.0f)*9.434339044685014e+7F-powf(m3y, 3.0f)*2.545856842307786e+9F-powf(m3y, 4.0f)*2.543056087992886e+10F+2.704129092816906e+3F);}
+    else {Moter_p.z += -(-m3y*2.484916365761186e+6F-powf(m3y, 2.0f)*9.434339044685014e+7F-powf(m3y, 3.0f)*2.545856842307786e+9F-powf(m3y, 4.0f)*2.543056087992886e+10F+2.704129092816906e+3F);}
 
     if (m4y >= 0) {Moter_p.w += m4y*2.211882424553347e+6F-powf(m4y, 2.0f)*7.041719505184467e+7F+powf(m4y, 3.0f)*1.582040637385563e+9F-powf(m4y, 4.0f)*1.320682078035621e+10F+2.633856322644595e+3F;}
     else {Moter_p.w += -(-m4y*2.211882424553347e+6F-powf(m4y, 2.0f)*7.041719505184467e+7F-powf(m4y, 3.0f)*1.582040637385563e+9F-powf(m4y, 4.0f)*1.320682078035621e+10F+2.633856322644595e+3F);}
