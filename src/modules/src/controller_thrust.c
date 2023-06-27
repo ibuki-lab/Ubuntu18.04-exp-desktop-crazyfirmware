@@ -114,7 +114,7 @@ void controllerthrust(control_t *control, setpoint_t *setpoint,
 
   // M.x = - (float)10000 * eRM.m[2][1];
 // --- Logging param and saturation input ---
-  cmd_thrust = clamp(control->thrust, 0, 45000);
+  cmd_thrust = clamp(control->thrust, 0, UINT16_MAX);
 
   control->roll = clamp(M.x, -32000, 32000);
   control->pitch = clamp(M.y, -32000, 32000);
