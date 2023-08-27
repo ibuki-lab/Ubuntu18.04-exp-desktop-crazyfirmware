@@ -49,12 +49,12 @@ IEEE International Conference on Robotics and Automation (ICRA), 2011.
 #define ATTITUDE_RATE_LPF_CUTOFF_FREQ 30.0f
 #define ATTITUDE_RATE_LPF_ENABLE false
 
-#define PID_Wx_KP  2 //50
+#define PID_Wx_KP  1.3 //50
 #define PID_Wx_KI  0.01  //500.0
 #define PID_Wx_KD  0.0  //2.5
 #define PID_Wx_INTEGRATION_LIMIT    1.5
 
-#define PID_Wy_KP  2 //50
+#define PID_Wy_KP  1.3 //50
 #define PID_Wy_KI  0.01  //500.0
 #define PID_Wy_KD  0.0  //2.5
 #define PID_Wy_INTEGRATION_LIMIT   1.5
@@ -65,7 +65,7 @@ IEEE International Conference on Robotics and Automation (ICRA), 2011.
 #define PID_Wz_INTEGRATION_LIMIT     1
 
 
-static float g_vehicleMass = 0.55; //0.027 battery full:0.45
+static float g_vehicleMass = 0.40; //0.027 battery full:0.45
 
 // Logging variables
 static float cmd_thrust;
@@ -94,7 +94,7 @@ static float Ix;
 static float Iy;
 static float Iz;
 
-static float Arm_L = 0.17;
+static float Arm_L = 0.13;
 
 static float dt;
 
@@ -166,9 +166,9 @@ void controllerrpyt(control_t *control, setpoint_t *setpoint,
   Moter_p.y = 0.0f;
   Moter_p.z = 0.0f;
   Moter_p.w = 0.0f;
-  Ix = 1.0f*powf(10.0f, -1.0f);
-  Iy = 1.0f*powf(10.0f, -1.0f);
-  Iz = 1.0f*powf(10.0f, -1.0f);
+  Ix = 0.5f*powf(10.0f, -1.0f);
+  Iy = 0.5f*powf(10.0f, -1.0f);
+  Iz = 0.5f*powf(10.0f, -1.0f);
   // float dt;
   dt = (float)(1.0f/ATTITUDE_RATE);
   // kato: RATE_DO_EXECUTE is in stabilizer_types.h and ATTITUDE_RATE is 500 Hz
